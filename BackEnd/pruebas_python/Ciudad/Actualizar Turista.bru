@@ -1,0 +1,28 @@
+meta {
+  name: Actualizar Turista
+  type: http
+  seq: 2
+}
+
+put {
+  url: http://127.0.0.1:8000/turista/23
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "nombre": "Juan",
+    "correo": "rendondavid328@gmail.com",
+    "fecha_nacimiento": "2007-08-01",
+    "ciudad_residencia": "Bogota",
+    "direccion": "Cll 131 b bis #95 b 33",
+    "identificacion": "1028941954",
+    "celular": "3134568354",
+    "contraseña": "12345"
+  }
+}

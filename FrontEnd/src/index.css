@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@theme {
+    --color-fondo: #bee9e8;
+    --color-nav: #62b6cb;
+
+    --breakpoint-xl: 1440px;
+    --breakpoint-lg: 1024px;
+    --breakpoint-md: 768px;
+    --breakpoint-sm: 480px;
+
+}
+@layer utilities {
+  @keyframes marquee {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+
+  .animate-marquee {
+    animation: marquee 6s linear infinite;
+  }
+}
+
+
+

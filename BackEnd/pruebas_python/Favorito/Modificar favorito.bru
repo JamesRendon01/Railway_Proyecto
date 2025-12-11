@@ -1,0 +1,22 @@
+meta {
+  name: Modificar favorito
+  type: http
+  seq: 2
+}
+
+put {
+  url: http://127.0.0.1:8000
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "id_turista":"",
+    "id_plan":""
+  }
+}

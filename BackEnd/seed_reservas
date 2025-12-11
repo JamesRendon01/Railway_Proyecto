@@ -1,0 +1,52 @@
+from sqlalchemy.orm import Session
+from db import engine
+from models.reserva import Reserva, EstadoReserva
+from models.turista import Turista
+from models.plan import Plan
+from faker import Faker
+import random
+from datetime import datetime, timedelta
+
+fake = Faker("es_ES")
+
+def generar_reservas(cantidad=100):
+    """
+    Genera reservas aleatorias para turistas y planes existentes.
+    """
+    with Session(engine) as session:
+        # 🔹 Obtener todos los turistas y planes existentes
+        turistas = session.query(Turista).all()
+        planes = session.query(Plan).all()
+
+        if not turistas:
+            raise Exception("⚠️ No hay turistas en la base de datos. Genera turistas primero.")
+        if not planes:
+            raise Exception("⚠️ No hay planes en la base de datos. Genera planes primero.")
+
+        reservas = []
+        for _ in range(cantidad):
+            turista = random.choice(turistas)
+            plan = random.choice(planes)
+
+            numero_personas = random.randint(1, 5)
+            fecha_reserva = fake.date_between(start_date="-1y", end_date="+1y")  # hasta un año atrás o futuro
+            costo_final = numero_personas * plan.costo_persona
+            disponibilidad = random.choice(list(EstadoReserva))
+
+            reserva = Reserva(
+                fecha_reserva=fecha_reserva,
+                costo_final=costo_final,
+                disponibilidad=disponibilidad,
+                numero_personas=numero_personas,
+                id_turista=turista.id,
+                id_plan=plan.id,
+                hotel_id=None,  # opcional, si quieres asignar hotels luego
+            )
+            reservas.append(reserva)
+
+        session.add_all(reservas)
+        session.commit()
+        print(f"✅ Se generaron {cantidad} reservas exitosamente.")
+
+if __name__ == "__main__":
+    generar_reservas(150)  # Cambia el número según lo que necesites

@@ -1,0 +1,27 @@
+meta {
+  name: Crear Reserva
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://127.0.0.1:8000/reserva
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "fecha_inicio":"2025-07-10",
+    "fecha_fin":"2025-07-12",
+    "precio":"50000",
+    "id_turista":"24",
+    "id_instancia":"1",
+    "id_hotel":"10",
+    "id_ruta":"1"
+  }
+}

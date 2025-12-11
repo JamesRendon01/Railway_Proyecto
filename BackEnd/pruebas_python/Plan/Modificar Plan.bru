@@ -1,0 +1,22 @@
+meta {
+  name: Modificar Plan
+  type: http
+  seq: 2
+}
+
+put {
+  url: http://127.0.0.1:8000/plan/2
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "imagen":"/uploads/planes_img/img4.jpg",
+    "descripcion":"Ven y pasa una experiencia maravillosa en el mirador de palmas"
+  }
+}

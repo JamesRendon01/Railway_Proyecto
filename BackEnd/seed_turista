@@ -1,0 +1,71 @@
+# seed_turistas.py
+from faker import Faker
+from sqlalchemy.orm import Session
+from datetime import datetime, timedelta, date
+from db import SessionLocal, engine, Base
+from models.turista import Turista
+import bcrypt
+import random
+
+fake = Faker('es_CO')  # Genera datos colombianos
+
+# ✅ Crear tablas si no existen
+Base.metadata.create_all(bind=engine)
+
+def hash_password(plain_password: str) -> str:
+    """Hashea la contraseña con bcrypt."""
+    hashed = bcrypt.hashpw(plain_password.encode('utf-8'), bcrypt.gensalt())
+    return hashed.decode('utf-8')
+
+def generar_turistas(cantidad: int = 50):
+    """Genera N turistas falsos y los guarda en la BD."""
+    db: Session = SessionLocal()
+
+    try:
+        turistas = []
+        for _ in range(cantidad):
+            nombre = fake.name()
+            correo = fake.unique.email()
+            celular = fake.unique.msisdn()[0:10]  # corta a 10 dígitos
+            fecha_nacimiento = fake.date_of_birth(minimum_age=18, maximum_age=60)
+            direccion = fake.address().split('\n')[0]
+            tipo_identificacion = random.choice(["CC", "TI", "CE"])
+            identificacion = str(fake.unique.random_int(min=10000000, max=99999999))
+            contrasena = hash_password("Password123!")
+            estado = True
+            acepto_terminos = True
+            ciudad_id = random.randint(1, 5)  # ajusta según tus ciudades existentes
+
+            turista = Turista(
+                nombre=nombre,
+                correo=correo,
+                celular=celular,
+                fecha_nacimiento=fecha_nacimiento,
+                direccion=direccion,
+                tipo_identificacion=tipo_identificacion,
+                identificacion=identificacion,
+                contrasena=contrasena,
+                estado=estado,
+                fecha_registro=datetime.utcnow(),
+                acepto_terminos=acepto_terminos,
+                intentos_fallidos=0,
+                bloqueado_hasta=None,
+                pin_recuperacion=None,
+                expira_pin=None,
+                token_recuperacion=None,
+                expira_token=None,
+                ciudad_id=ciudad_id
+            )
+            turistas.append(turista)
+
+        db.bulk_save_objects(turistas)
+        db.commit()
+        print(f"✅ Se insertaron {cantidad} turistas de prueba correctamente.")
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Error al insertar turistas: {e}")
+    finally:
+        db.close()
+
+if __name__ == "__main__":
+    generar_turistas(200)

@@ -1,0 +1,24 @@
+meta {
+  name: Modificar Ubicacion
+  type: http
+  seq: 2
+}
+
+put {
+  url: http://127.0.0.1:8000/ubicacion/2
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "ciudad":"Medellin",
+    "direccion":"Cll 131 b bis # 95 b 33",
+    "longitud":"15",
+    "latitud":"30"
+  }
+}
