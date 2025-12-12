@@ -42,7 +42,7 @@ export default function Registro() {
 
   // Cargar ciudades al montar
   useEffect(() => {
-    fetch("http://localhost:8000/ciudad/listar_ciudades")
+    fetch("preyecto2-production.up.railway.app/ciudad/listar_ciudades")
       .then(res => res.json())
       .then(data => setCiudades(data))
       .catch(err => console.error("Error cargando ciudades:", err));
