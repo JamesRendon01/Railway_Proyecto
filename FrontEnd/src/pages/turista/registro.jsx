@@ -83,7 +83,7 @@ export default function Registro() {
     };
 
     try {
-      const res = await fetch("http://localhost:8000/turista/registrar", {
+      const res = await fetch("preyecto2-production.up.railway.app/turista/registrar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dataToSend),
