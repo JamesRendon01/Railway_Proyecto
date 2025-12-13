@@ -2,15 +2,6 @@ import os  # Asegúrate de tener esta importación al principio
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-# 1. Obtener la URL de conexión desde la variable de entorno de Railway
-#    La variable MYSQL_URL tiene la forma: mysql://usuario:contraseña@host:puerto/bd
-#    Si no está en el entorno (es decir, estás probando localmente), usa el valor local.
-
-# Cambia esta línea:
-# SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:admin@localhost:3315/josnishop"
-
-# Por estas líneas:
-# Asegúrate de que el driver pymysql esté especificado correctamente si es necesario.
 # Railway proporciona la URL como mysql://...
 DATABASE_URL = os.getenv("MYSQL_URL")
 
