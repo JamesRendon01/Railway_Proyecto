@@ -13,6 +13,11 @@ from sqlalchemy.orm import sessionmaker
 # Asegúrate de que el driver pymysql esté especificado correctamente si es necesario.
 # Railway proporciona la URL como mysql://...
 DATABASE_URL = os.getenv("MYSQL_URL")
+DATABASE_HOST = os.getenv("MYSQLHOST")
+DATABASE_USER = os.getenv("MYSQLUSER")
+DATABASE_PASSWORD = os.getenv("MYSQLPASSWORD")
+DATABASE_NAME = os.getenv("MYSQLDATABASE")
+DATABASE_PORT = os.getenv("MYSQLPORT")
 
 # Define un valor de fallback SOLO para pruebas locales (fuera de Railway)
 if DATABASE_URL:
