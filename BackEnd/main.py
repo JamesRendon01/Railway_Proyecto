@@ -35,7 +35,7 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,        # dominios permitidos
+    allow_origins=["https://railway-proyecto.vercel.app"],        # dominios permitidos
     allow_credentials=True,
     allow_methods=["*"],          # todos los métodos (GET, POST, PUT, DELETE)
     allow_headers=["*"],          # todos los encabezados
