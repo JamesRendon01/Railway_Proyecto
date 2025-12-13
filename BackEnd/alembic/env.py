@@ -30,6 +30,11 @@ target_metadata = Base.metadata
 
 # 🚀 FIX IMPORTANTE: Reemplazar mysql:// → mysql+pymysql://
 MYSQL_URL = os.getenv("MYSQL_URL")
+DATABASE_HOST = os.getenv("MYSQLHOST")
+DATABASE_USER = os.getenv("MYSQLUSER")
+DATABASE_PASSWORD = os.getenv("MYSQLPASSWORD")
+DATABASE_NAME = os.getenv("MYSQLDATABASE")
+DATABASE_PORT = os.getenv("MYSQLPORT")
 
 if MYSQL_URL:
     MYSQL_URL = MYSQL_URL.replace("mysql://", "mysql+pymysql://")
