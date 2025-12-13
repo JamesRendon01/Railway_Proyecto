@@ -1,38 +1,35 @@
-import os  # Asegúrate de tener esta importación al principio
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
 
-# 1. Obtener la URL de conexión desde la variable de entorno de Railway
-#    La variable MYSQL_URL tiene la forma: mysql://usuario:contraseña@host:puerto/bd
-#    Si no está en el entorno (es decir, estás probando localmente), usa el valor local.
+# Cargar variables de entorno
+load_dotenv()
 
-# Cambia esta línea:
-# SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:admin@localhost:3315/josnishop"
+# Obtener URL de la base de datos desde .env
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Por estas líneas:
-# Asegúrate de que el driver pymysql esté especificado correctamente si es necesario.
-# Railway proporciona la URL como mysql://...
-DATABASE_URL = os.getenv("MYSQL_URL")
-DATABASE_HOST = os.getenv("MYSQLHOST")
-DATABASE_USER = os.getenv("MYSQLUSER")
-DATABASE_PASSWORD = os.getenv("MYSQLPASSWORD")
-DATABASE_NAME = os.getenv("MYSQLDATABASE")
-DATABASE_PORT = os.getenv("MYSQLPORT")
+if not DATABASE_URL:
+    raise RuntimeError(
+        "DATABASE_URL no está configurada. "
+        "Asegúrate de definirla en tu archivo .env"
+    )
 
-# Define un valor de fallback SOLO para pruebas locales (fuera de Railway)
-if DATABASE_URL:
-    # Si la variable existe, reemplazamos 'mysql' por 'mysql+pymysql' si PyMySQL es el driver.
-    # Opcional: Si tu aplicación está usando 'mariadb', puedes cambiar 'mysql' por 'mariadb'.
-    SQLALCHEMY_DATABASE_URL = DATABASE_URL.replace("mysql://", "mysql+pymysql://")
-else:
-    # Fallback para desarrollo local (si usas XAMPP o Docker local)
-    SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:@localhost:3306/escapade_parfaite" 
+# Crear engine único para toda la aplicación
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True,
+    pool_recycle=300
+)
 
+# Session factory
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
 
-# crea el objeto de conexion(permite conectarse a la base de datos)
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
+# Dependencia para FastAPI
 def get_db():
     db = SessionLocal()
     try:

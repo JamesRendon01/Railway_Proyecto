@@ -3,22 +3,13 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import date
 from typing import Optional
-from db.session import SessionLocal
+
+from db.database import get_db
 from models.reserva import Reserva
 from models.plan import Plan
 from models.ciudad import Ciudad
 
 router = APIRouter(prefix="/graficas", tags=["Gráficas"])
-
-# ==========================================================
-# 🧩 Dependencia de sesión
-# ==========================================================
-def get_session():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 # ==========================================================
@@ -27,7 +18,7 @@ def get_session():
 def obtener_formato(agrupacion: str):
     formatos = {
         "dia": "%Y-%m-%d",
-        "semana": "%Y-W%v",  # Año-Semana ISO, con prefijo 'W'
+        "semana": "%Y-W%v",
         "mes": "%Y-%m",
         "anio": "%Y",
     }
@@ -47,7 +38,7 @@ def obtener_formato(agrupacion: str):
 def ciudades_mas_reservas(
     fecha_inicio: Optional[date] = Query(None),
     fecha_fin: Optional[date] = Query(None),
-    db: Session = Depends(get_session)
+    db: Session = Depends(get_db)
 ):
     query = (
         db.query(
@@ -69,7 +60,12 @@ def ciudades_mas_reservas(
         .all()
     )
 
-    return {"data": [{"ciudad": r.ciudad, "total_reservas": r.total_reservas} for r in resultados]}
+    return {
+        "data": [
+            {"ciudad": r.ciudad, "total_reservas": r.total_reservas}
+            for r in resultados
+        ]
+    }
 
 
 # ==========================================================
@@ -80,7 +76,7 @@ def planes_por_periodo(
     fecha_inicio: Optional[date] = Query(None),
     fecha_fin: Optional[date] = Query(None),
     agrupacion: str = Query("mes"),
-    db: Session = Depends(get_session),
+    db: Session = Depends(get_db),
 ):
     formato = obtener_formato(agrupacion)
 
@@ -100,15 +96,10 @@ def planes_por_periodo(
         .all()
     )
 
-    # 🔹 Garantizar formato consistente (cero padding)
-    data = []
-    for r in resultados:
-        periodo = r.periodo
-        # Asegura que los meses tengan 2 dígitos (YYYY-MM)
-        if agrupacion == "mes" and len(periodo.split("-")[1]) == 1:
-            partes = periodo.split("-")
-            periodo = f"{partes[0]}-0{partes[1]}"
-        data.append({"periodo": periodo, "total_planes": r.total_planes})
+    data = [
+        {"periodo": r.periodo, "total_planes": r.total_planes}
+        for r in resultados
+    ]
 
     return {"data": data}
 
@@ -121,7 +112,7 @@ def reservas_por_periodo(
     fecha_inicio: Optional[date] = Query(None),
     fecha_fin: Optional[date] = Query(None),
     agrupacion: str = Query("mes"),
-    db: Session = Depends(get_session),
+    db: Session = Depends(get_db),
 ):
     formato = obtener_formato(agrupacion)
 
@@ -141,13 +132,9 @@ def reservas_por_periodo(
         .all()
     )
 
-    # 🔹 Asegurar formato legible (YYYY-MM-DD o YYYY-MM)
-    data = []
-    for r in resultados:
-        periodo = r.periodo
-        if agrupacion == "mes" and len(periodo.split("-")[1]) == 1:
-            partes = periodo.split("-")
-            periodo = f"{partes[0]}-0{partes[1]}"
-        data.append({"periodo": periodo, "total_reservas": r.total_reservas})
+    data = [
+        {"periodo": r.periodo, "total_reservas": r.total_reservas}
+        for r in resultados
+    ]
 
     return {"data": data}

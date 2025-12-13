@@ -1,9 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from security.headers import security_headers
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
-# Importar los controladores
+from security.headers import security_headers
+# Controladores
 from controllers.turista_controller import router as turista_router
 from controllers.administrador_controller import router as admin_router
 from controllers.favorito_controller import router as favorito_router
@@ -17,34 +20,44 @@ from controllers.filtro_controller import router as filtro_router
 from controllers.dashboard_controller import router as dashboard_router
 from controllers.graficas_controller import router as graficas_router
 
-# 🔹 APScheduler para tareas automáticas
+# Scheduler
 from apscheduler.schedulers.background import BackgroundScheduler
 from utils.actualizar_reservas import actualizar_reservas_finalizadas
 
-# 🧩 Inicialización de FastAPI
-app = FastAPI(title="API de Reservas Turísticas", version="1.0")
-
-# 🌐 CORS ────────────────────────────────────────────────
-origins = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "http://localhost:4000",
-    "http://127.0.0.1:4000",
-    "https://cbbtpx6d-4000.use2.devtunnels.ms",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["https://railway-proyecto.vercel.app"],        # dominios permitidos
-    allow_credentials=True,
-    allow_methods=["*"],          # todos los métodos (GET, POST, PUT, DELETE)
-    allow_headers=["*"],          # todos los encabezados
+# =====================================================
+# APP
+# =====================================================
+app = FastAPI(
+    title="API de Reservas Turísticas",
+    version="1.0"
 )
 
-# 🧱 Archivos estáticos ──────────────────────────────────
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+# =====================================================
+# CORS
+# =====================================================
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://railway-proyecto.vercel.app"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# 🔗 Rutas ────────────────────────────────────────────────
+# =====================================================
+# Static files (uploads)
+# =====================================================
+UPLOADS_DIR = "uploads"
+os.makedirs(UPLOADS_DIR, exist_ok=True)
+
+app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
+
+# =====================================================
+# RUTAS
+# =====================================================
 app.include_router(turista_router)
 app.include_router(admin_router)
 app.include_router(favorito_router)
@@ -58,19 +71,29 @@ app.include_router(filtro_router)
 app.include_router(dashboard_router)
 app.include_router(graficas_router)
 
-# 🛡️ Middleware de seguridad ─────────────────────────────
-# ⚠️ Se registra después del CORS para no eliminar sus encabezados
+# =====================================================
+# Security headers
+# =====================================================
 app.middleware("http")(security_headers)
 
-# 🕒 ────────────────────────────────────────────────
-#     CONFIGURACIÓN DE TAREA AUTOMÁTICA (APScheduler)
-# ──────────────────────────────────────────────────
-scheduler = BackgroundScheduler()
-scheduler.add_job(actualizar_reservas_finalizadas, "interval", hours=24)
-scheduler.start()
+# =====================================================
+# Scheduler
+# =====================================================
+scheduler = BackgroundScheduler(timezone="UTC")
 
-# 🟢 Ejecutar al iniciar el servidor también
 @app.on_event("startup")
 def startup_event():
-    print("🚀 Servidor iniciado. Verificando reservas vencidas...")
+    print("🚀 Servidor iniciado")
+    
+    if not scheduler.running:
+        scheduler.add_job(
+            actualizar_reservas_finalizadas,
+            "interval",
+            hours=24,
+            id="actualizar_reservas_job",
+            replace_existing=True
+        )
+        scheduler.start()
+        print("⏰ Scheduler iniciado")
+
     actualizar_reservas_finalizadas()

@@ -1,4 +1,2 @@
-from .database import engine
+from .database import engine, SessionLocal, get_db
 from .base import Base
-from .database import SQLALCHEMY_DATABASE_URL
-from .session import SessionLocal
