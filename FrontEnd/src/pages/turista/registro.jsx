@@ -42,7 +42,7 @@ export default function Registro() {
 
   // Cargar ciudades al montar
   useEffect(() => {
-    fetch("http://localhost:8000/ciudad/listar_ciudades")
+    fetch("preyecto2-production.up.railway.app/ciudad/listar_ciudades")
       .then(res => res.json())
       .then(data => setCiudades(data))
       .catch(err => console.error("Error cargando ciudades:", err));
@@ -51,7 +51,7 @@ export default function Registro() {
   // Manejar cambios en los inputs
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  };  
 
   // Envío del formulario
   const handleSubmit = async (e) => {
@@ -83,7 +83,7 @@ export default function Registro() {
     };
 
     try {
-      const res = await fetch("http://localhost:8000/turista/registrar", {
+      const res = await fetch("preyecto2-production.up.railway.app/turista/registrar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dataToSend),
