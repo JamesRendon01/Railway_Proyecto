@@ -21,7 +21,7 @@ if DATABASE_URL:
     SQLALCHEMY_DATABASE_URL = DATABASE_URL.replace("mysql://", "mysql+pymysql://")
 else:
     # Fallback para desarrollo local (si usas XAMPP o Docker local)
-    SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:@localhost:3306/escapade_parfaite" 
+    SQLALCHEMY_DATABASE_URL = "mysql://root:iUJKHheBPNeNAyZfrCAANnbFYysanLrt@shinkansen.proxy.rlwy.net:34048/railway" 
 
 
 # crea el objeto de conexion(permite conectarse a la base de datos)
