@@ -51,7 +51,7 @@ export default function Registro() {
   // Manejar cambios en los inputs
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  };  
 
   // Envío del formulario
   const handleSubmit = async (e) => {
