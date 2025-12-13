@@ -39,7 +39,7 @@ export default function InicioTurista() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${API_URL}/turista/iniciarsesion`, {
+      const res = await fetch(`patient-optimism-production-9db7.up.railway.app/turista/iniciarsesion`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
