@@ -42,7 +42,7 @@ export default function Registro() {
 
   // Cargar ciudades al montar
   useEffect(() => {
-    fetch("preyecto2-production.up.railway.app/ciudad/listar_ciudades")
+    fetch("patient-optimism-production-9db7.up.railway.app/ciudad/listar_ciudades")
       .then(res => res.json())
       .then(data => setCiudades(data))
       .catch(err => console.error("Error cargando ciudades:", err));
