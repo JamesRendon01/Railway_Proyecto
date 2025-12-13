@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { createRoot } from "react-dom/client";
 import { Eye, EyeOff } from 'lucide-react'; // 👁️ Importa los íconos
 import TermsModal from '../../components/terminos_condiciones';
+const API_URL = import.meta.env.VITE_API_URL;
 
 unstableSetRender((node, container) => {
   container._reactRoot ||= createRoot(container);
@@ -42,7 +43,7 @@ export default function Registro() {
 
   // Cargar ciudades al montar
   useEffect(() => {
-    fetch("patient-optimism-production-9db7.up.railway.app/ciudad/listar_ciudades")
+    fetch(`${API_URL}/ciudad/listar_ciudades`)
       .then(res => res.json())
       .then(data => setCiudades(data))
       .catch(err => console.error("Error cargando ciudades:", err));
@@ -83,7 +84,7 @@ export default function Registro() {
     };
 
     try {
-      const res = await fetch("preyecto2-production.up.railway.app/turista/registrar", {
+      const res = await fetch(`${API_URL}/turista/registrar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dataToSend),
