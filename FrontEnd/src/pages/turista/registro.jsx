@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { createRoot } from "react-dom/client";
 import { Eye, EyeOff } from 'lucide-react'; // 👁️ Importa los íconos
 import TermsModal from '../../components/terminos_condiciones';
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 unstableSetRender((node, container) => {
