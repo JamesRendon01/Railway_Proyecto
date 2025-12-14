@@ -3,33 +3,50 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
-# Cargar variables de entorno
+# Cargar variables (solo útil en local)
 load_dotenv()
 
-# Obtener URL de la base de datos desde .env
-DATABASE_URL = os.getenv("DATABASE_URL")
+# =====================================================
+# VARIABLES DE ENTORNO (RAILWAY)
+# =====================================================
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT", "3306")
+DB_NAME = os.getenv("DB_NAME")
 
-if not DATABASE_URL:
-    raise RuntimeError(
-        "DATABASE_URL no está configurada. "
-        "Asegúrate de definirla en tu archivo .env"
-    )
+if not all([DB_USER, DB_PASSWORD, DB_HOST, DB_NAME]):
+    raise RuntimeError("❌ Variables de entorno de base de datos incompletas")
 
-# Crear engine único para toda la aplicación
+# =====================================================
+# DATABASE URL (MySQL + PyMySQL)
+# =====================================================
+DATABASE_URL = (
+    f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}"
+    f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+)
+
+# =====================================================
+# ENGINE
+# =====================================================
 engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,
-    pool_recycle=300
+    pool_recycle=300,
 )
 
-# Session factory
+# =====================================================
+# SESSION
+# =====================================================
 SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
-    bind=engine
+    bind=engine,
 )
 
-# Dependencia para FastAPI
+# =====================================================
+# DEPENDENCY
+# =====================================================
 def get_db():
     db = SessionLocal()
     try:

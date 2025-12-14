@@ -3,10 +3,48 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
+# =========================
+# APP
+# =========================
+app = FastAPI(
+    title="API de Reservas Turísticas",
+    version="1.0"
+)
+
+# =========================
+# CORS
+# =========================
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        # agrega luego tu dominio de Vercel
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# =========================
+# STATIC FILES
+# =========================
+UPLOADS_DIR = "uploads"
+os.makedirs(UPLOADS_DIR, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
+
+# =========================
+# SECURITY HEADERS
+# =========================
 from security.headers import security_headers
-# Controladores
+app.middleware("http")(security_headers)
+
+# =========================
+# ROUTERS
+# =========================
 from controllers.turista_controller import router as turista_router
 from controllers.administrador_controller import router as admin_router
 from controllers.favorito_controller import router as favorito_router
@@ -20,44 +58,6 @@ from controllers.filtro_controller import router as filtro_router
 from controllers.dashboard_controller import router as dashboard_router
 from controllers.graficas_controller import router as graficas_router
 
-# Scheduler
-from apscheduler.schedulers.background import BackgroundScheduler
-from utils.actualizar_reservas import actualizar_reservas_finalizadas
-
-# =====================================================
-# APP
-# =====================================================
-app = FastAPI(
-    title="API de Reservas Turísticas",
-    version="1.0"
-)
-
-# =====================================================
-# CORS
-# =====================================================
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "https://railway-proyecto.vercel.app"
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# =====================================================
-# Static files (uploads)
-# =====================================================
-UPLOADS_DIR = "uploads"
-os.makedirs(UPLOADS_DIR, exist_ok=True)
-
-app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
-
-# =====================================================
-# RUTAS
-# =====================================================
 app.include_router(turista_router)
 app.include_router(admin_router)
 app.include_router(favorito_router)
@@ -71,20 +71,18 @@ app.include_router(filtro_router)
 app.include_router(dashboard_router)
 app.include_router(graficas_router)
 
-# =====================================================
-# Security headers
-# =====================================================
-app.middleware("http")(security_headers)
+# =========================
+# SCHEDULER
+# =========================
+from apscheduler.schedulers.background import BackgroundScheduler
+from utils.actualizar_reservas import actualizar_reservas_finalizadas
 
-# =====================================================
-# Scheduler
-# =====================================================
 scheduler = BackgroundScheduler(timezone="UTC")
 
 @app.on_event("startup")
 def startup_event():
     print("🚀 Servidor iniciado")
-    
+
     if not scheduler.running:
         scheduler.add_job(
             actualizar_reservas_finalizadas,
@@ -96,4 +94,12 @@ def startup_event():
         scheduler.start()
         print("⏰ Scheduler iniciado")
 
+    # ejecución inicial
     actualizar_reservas_finalizadas()
+
+# =========================
+# HEALTH CHECK (IMPORTANTE)
+# =========================
+@app.get("/health")
+def health():
+    return {"status": "ok"}
